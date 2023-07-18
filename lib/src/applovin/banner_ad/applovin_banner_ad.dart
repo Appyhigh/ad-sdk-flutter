@@ -60,45 +60,49 @@ class ApplovinBannerAd extends BannerAd {
   AdProvider get provider => AdProvider.applovin;
 
   @override
-  Widget build() => MaxAdView(
-      adUnitId: adId,
-      adFormat: AdFormat.banner,
-      isAutoRefreshEnabled: true,
-      listener: AdViewAdListener(
-        onAdLoadedCallback: (ad) {
-          _isAdLoaded=true;
-          _failedToLoad=false;
-          print('Banner widget ad loaded from ${ad.networkName}');
-        },
-        onAdLoadFailedCallback: (adUnitId, error) {
-          _isAdLoaded=false;
-          _failedToLoad=true;
-          print(
-              'Banner widget ad failed to load with error code ${error.code} and message: ${error.message}');
-        },
-        onAdClickedCallback: (ad) {
-          print('Banner widget ad clicked');
-        },
-        onAdExpandedCallback: (ad) {
-          print('Banner widget ad expanded');
-        },
-        onAdCollapsedCallback: (ad) {
-          print('Banner widget ad collapsed');
-        },
-        onAdRevenuePaidCallback: (ad) {
-          print('Banner widget ad revenue paid: ${ad.revenue}');
-        },
+  Widget build() => SizedBox(
+    height: height,
+    width: width,
+    child: MaxAdView(
+        adUnitId: adId,
+        adFormat: AdFormat.banner,
+        isAutoRefreshEnabled: true,
+        listener: AdViewAdListener(
+          onAdLoadedCallback: (ad) {
+            _isAdLoaded=true;
+            _failedToLoad=false;
+            print('Banner widget ad loaded from ${ad.networkName}');
+          },
+          onAdLoadFailedCallback: (adUnitId, error) {
+            _isAdLoaded=false;
+            _failedToLoad=true;
+            print(
+                'Banner widget ad failed to load with error code ${error.code} and message: ${error.message}');
+          },
+          onAdClickedCallback: (ad) {
+            print('Banner widget ad clicked');
+          },
+          onAdExpandedCallback: (ad) {
+            print('Banner widget ad expanded');
+          },
+          onAdCollapsedCallback: (ad) {
+            print('Banner widget ad collapsed');
+          },
+          onAdRevenuePaidCallback: (ad) {
+            print('Banner widget ad revenue paid: ${ad.revenue}');
+          },
+        ),
       ),
-    );
+  );
 
   @override
   bool get adFailedToLoad => _failedToLoad;
 
   @override
-  double get height => 0;
+  double get height => 55;
 
   @override
-  double get width => 0;
+  double get width => 468;
 
   @override
   bool get isAdLoaded => _isAdLoaded;
