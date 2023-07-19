@@ -1,3 +1,4 @@
+import 'package:adsdk/src/applovin/listeners/app_lovin_listener.dart';
 import 'package:flutter/material.dart';
 import 'package:adsdk/src/internal/native_ad/native_ad.dart';
 import 'package:adsdk/src/internal/enums/ad_provider.dart';
@@ -5,7 +6,7 @@ import '../../internal/enums/ad_size.dart';
 import 'package:applovin_max/applovin_max.dart';
 import 'package:adsdk/src/internal/listeners/ad_load_listener.dart';
 
-class ApplovinNativeAd extends NativeAd {
+class ApplovinNativeAd extends NativeAd{
   final AdSdkAdSize _sdkAdSize;
   ApplovinNativeAd(
     super.adId,
@@ -130,7 +131,8 @@ class ApplovinNativeAd extends NativeAd {
         ),
       );
 
-      
+  @override
+  String get applovinAdId => adId;
 
   @override
   bool get isAdLoaded => _isAdLoaded;
