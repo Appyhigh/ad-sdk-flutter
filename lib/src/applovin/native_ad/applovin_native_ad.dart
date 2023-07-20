@@ -1,4 +1,3 @@
-import 'package:adsdk/src/applovin/listeners/app_lovin_listener.dart';
 import 'package:flutter/material.dart';
 import 'package:adsdk/src/internal/native_ad/native_ad.dart';
 import 'package:adsdk/src/internal/enums/ad_provider.dart';
@@ -17,6 +16,10 @@ class ApplovinNativeAd extends NativeAd{
 
   bool _failedToLoad = false;
 
+  final MaxNativeAdViewController _nativeAdViewController =
+      MaxNativeAdViewController();
+
+  MaxNativeAdView? nativeAdViewRef;
 
   @override
   void dispose() {
@@ -29,15 +32,104 @@ class ApplovinNativeAd extends NativeAd{
       case AdSdkAdSize.mediumNative:
         return const Size(468, 250);
       case AdSdkAdSize.smallNative:
-        return const Size(468, 130);
+        return const Size(468, 72);
       default:
-        return const Size(468, 130);
+        return const Size(468, 72);
     }
   }
 
   @override
   Future<void> loadAd({required AdLoadListener adLoadListener}) async {
+    nativeAdViewRef=MaxNativeAdView(
+        height: height,
+        width: width,
+        controller: _nativeAdViewController,
+        adUnitId: adId,
+        listener: NativeAdListener(onAdLoadedCallback: (ad) {
+          print('AdCombo Native ad loaded from ${ad.networkName}');
+        }, onAdLoadFailedCallback: (adUnitId, error) {
+          print(
+              'AdCombo Native ad failed to load with error code ${error.code} and message: ${error.message}');
+        }, onAdClickedCallback: (ad) {
+          print('AdCombo Native ad clicked');
+        }, onAdRevenuePaidCallback: (ad) {
+          print('AdCombo Native ad revenue paid: ${ad.revenue}');
+        }),
+        child: Container(
+          height: height,
+          width: width,
+          color: Color.fromARGB(255, 232, 224, 71),
+          child: Row(
+            children: [
+              MaxNativeAdMediaView(
+                width: 100,
+              ),
+              const Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                   Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      MaxNativeAdTitleView(
+                        maxLines: 1,
+                        overflow: TextOverflow.fade,
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold),
+                      )
+                    ],
+                  ),
+                  MaxNativeAdAdvertiserView(
+                    style:
+                        TextStyle(fontWeight: FontWeight.normal, fontSize: 12),
+                    maxLines: 1,
+                    overflow: TextOverflow.fade,
+                  ),
+                  MaxNativeAdStarRatingView(
+                    size: 10,
+                  ),
+                  MaxNativeAdBodyView(
+                    maxLines: 1,
+                    overflow: TextOverflow.fade,
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  MaxNativeAdCallToActionView(
+                    style: ButtonStyle(
+                      elevation: MaterialStateProperty.all(0),
+                      backgroundColor: MaterialStatePropertyAll(
+                          Color.fromARGB(255, 11, 123, 151)),
+                      foregroundColor: MaterialStatePropertyAll(Colors.white),
+                      textStyle: MaterialStatePropertyAll(
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      MaxNativeAdIconView(
+                        height: 20,
+                        width: 20,
+                      ),
+                      MaxNativeAdOptionsView(
+                        height: 20,
+                        width: 20,
+                      ),
+                    ],
+                  )
+                ],
+              ),
+              
+            ],
+          ),
+        ),
+      );
 
+    nativeAdViewRef!.controller!.loadAd();
   }
 
   @override
@@ -47,92 +139,9 @@ class ApplovinNativeAd extends NativeAd{
   Widget build() => SizedBox(
         height: height,
         width: width,
-        child: MaxNativeAdView(
-          adUnitId: adId,
-          listener: NativeAdListener(onAdLoadedCallback: (ad) {
-            _isAdLoaded=true;
-            _failedToLoad=false;
-            print('AdCombo Native ad loaded from ${ad.networkName}');
-          }, onAdLoadFailedCallback: (adUnitId, error) {
-            _isAdLoaded=false;
-            _failedToLoad=true;
-            print(
-                'AdCombo Native ad failed to load with error code ${error.code} and message: ${error.message}');
-          }, onAdClickedCallback: (ad) {
-            print('AdCombo Native ad clicked');
-          }, onAdRevenuePaidCallback: (ad) {
-            print('AdCombo Native ad revenue paid: ${ad.revenue}');
-          }),
-          child: Container(
-            height: height,
-            width: width,
-            color: Color.fromARGB(255, 232, 224, 71),
-            child: Row(
-              children: [
-                Expanded(
-                  child: MaxNativeAdMediaView(),
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        MaxNativeAdTitleView(
-                          maxLines: 1,
-                          overflow: TextOverflow.fade,
-                          style: TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    ),
-                    MaxNativeAdAdvertiserView(
-                      style: TextStyle(
-                          fontWeight: FontWeight.normal, fontSize: 12),
-                      maxLines: 1,
-                      overflow: TextOverflow.fade,
-                    ),
-                    MaxNativeAdStarRatingView(
-                      size: 10,
-                    ),
-                    MaxNativeAdBodyView(
-                      maxLines: 1,
-                      overflow: TextOverflow.fade,
-                      style: TextStyle(fontSize: 12),
-                    ),
-                    MaxNativeAdCallToActionView(
-                      style: ButtonStyle(
-                        elevation: MaterialStateProperty.all(0),
-                        backgroundColor: MaterialStatePropertyAll(
-                            Color.fromARGB(255, 11, 123, 151)),
-                        foregroundColor: MaterialStatePropertyAll(Colors.white),
-                        textStyle: MaterialStatePropertyAll(TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        MaxNativeAdIconView(
-                          height: 20,
-                          width: 20,
-                        ),
-                        MaxNativeAdOptionsView(
-                          height: 20,
-                          width: 20,
-                        ),
-                      ],
-                    )
-                  ],
-                )
-              ],
-            ),
-          ),
-        ),
+        child: nativeAdViewRef
       );
 
-  @override
-  String get applovinAdId => adId;
 
   @override
   bool get isAdLoaded => _isAdLoaded;

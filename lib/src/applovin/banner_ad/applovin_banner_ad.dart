@@ -1,21 +1,17 @@
-import 'package:adsdk/src/applovin/banner_ad/applovin_banner_listener.dart';
 import 'package:adsdk/src/applovin/listeners/app_lovin_listener.dart';
 import 'package:adsdk/src/internal/banner_ad/banner_ad.dart';
 import 'package:adsdk/src/internal/enums/ad_provider.dart';
 import 'package:adsdk/src/internal/listeners/ad_load_listener.dart';
-import 'package:adsdk/src/internal/listeners/ad_show_listener.dart';
 import 'package:flutter/material.dart';
 import 'package:applovin_max/applovin_max.dart';
 import '../../internal/enums/ad_size.dart';
 
-class ApplovinBannerAd extends BannerAd implements ApplovinListener {
+class ApplovinBannerAd extends BannerAd{
   final AdSdkAdSize _sdkAdSize;
 
   ApplovinBannerAd(super.adId, this._sdkAdSize) {
-    ApplovinBannerListener.instance.addListener(this);
+    // ApplovinBannerListener.instance.addListener(this);
   }
-
-  late AdLoadListener _loadListener;
 
   bool _isAdLoaded = false;
 
@@ -25,15 +21,10 @@ class ApplovinBannerAd extends BannerAd implements ApplovinListener {
   void dispose() {
     _isAdLoaded = false;
     _failedToLoad = false;
-    AppLovinMAX.destroyBanner(adId);
-    ApplovinBannerListener.instance.removeListener(this);
   }
 
   @override
   Future<void> loadAd({required AdLoadListener adLoadListener}) async {
-    _loadListener = adLoadListener;
-    AppLovinMAX.createBanner(adId, AdViewPosition.bottomCenter);
-    AppLovinMAX.showBanner(adId);
   }
 
   @override
@@ -76,10 +67,10 @@ class ApplovinBannerAd extends BannerAd implements ApplovinListener {
   bool get adFailedToLoad => _failedToLoad;
 
   @override
-  double get height => 55;
+  double get height => 50;
 
   @override
-  double get width => 468;
+  double get width => 320;
 
   @override
   bool get isAdLoaded => _isAdLoaded;
@@ -87,21 +78,4 @@ class ApplovinBannerAd extends BannerAd implements ApplovinListener {
   @override
   AdProvider get provider => AdProvider.applovin;
 
-  @override
-  String get applovinAdId => adId;
-  
-  @override
-  void onAdLoaded() => _loadListener.onAdLoaded();
-
-  @override
-  void onFailedToLoadAd() => _loadListener.onFailedToLoadAd();
-
-  @override
-  void onAdClosed() {}
-
-  @override
-  void onAdFailedToShow() {}
-
-  @override
-  void onAdSuccess() {}
 }
