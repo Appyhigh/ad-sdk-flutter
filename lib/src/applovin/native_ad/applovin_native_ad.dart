@@ -16,10 +16,10 @@ class ApplovinNativeAd extends NativeAd{
 
   bool _failedToLoad = false;
 
-  final MaxNativeAdViewController _nativeAdViewController =
+  final MaxNativeAdViewController controller =
       MaxNativeAdViewController();
 
-  MaxNativeAdView? nativeAdViewRef;
+  MaxNativeAdView? _nativeAdViewRef;
 
   @override
   void dispose() {
@@ -40,10 +40,10 @@ class ApplovinNativeAd extends NativeAd{
 
   @override
   Future<void> loadAd({required AdLoadListener adLoadListener}) async {
-    nativeAdViewRef=MaxNativeAdView(
+    _nativeAdViewRef=MaxNativeAdView(
         height: height,
         width: width,
-        controller: _nativeAdViewController,
+        controller: controller,
         adUnitId: adId,
         listener: NativeAdListener(onAdLoadedCallback: (ad) {
           print('AdCombo Native ad loaded from ${ad.networkName}');
@@ -129,7 +129,7 @@ class ApplovinNativeAd extends NativeAd{
         ),
       );
 
-    nativeAdViewRef!.controller!.loadAd();
+    _nativeAdViewRef!.controller!.loadAd();
   }
 
   @override
@@ -139,7 +139,7 @@ class ApplovinNativeAd extends NativeAd{
   Widget build() => SizedBox(
         height: height,
         width: width,
-        child: nativeAdViewRef
+        child: _nativeAdViewRef
       );
 
 
