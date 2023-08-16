@@ -1,6 +1,8 @@
 import 'package:adsdk/src/admanager/admanager_ads.dart';
 import 'package:adsdk/src/admob/admob_ads.dart';
 import 'package:adsdk/src/applovin/applovin_ads.dart';
+import 'package:adsdk/src/applovin/banner_ad/applovin_banner_ad.dart';
+import 'package:adsdk/src/applovin/native_ad/applovin_native_ad.dart';
 import 'package:adsdk/src/internal/ad.dart';
 import 'package:adsdk/src/internal/enums/ad_provider.dart';
 import 'package:adsdk/src/internal/enums/ad_type.dart';
@@ -54,6 +56,10 @@ class AdProviderFactory {
             return ApplovinRewardedAd(adId);
           case AdUnitType.rewardInterstitial:
             return ApplovinRewardedAd(adId);
+          case AdUnitType.native:
+            return ApplovinNativeAd(adId, adConfig.size);
+          case AdUnitType.banner:
+            return ApplovinBannerAd(adId, adConfig.size);
           default:
             throw Exception();
         }
