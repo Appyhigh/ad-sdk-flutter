@@ -1,6 +1,6 @@
 name: adsdk
 description: AdSdk is a wrapper around famous ad packages which let you integrate ads easily.
-version: 0.0.1
+version: 1.1.0
 homepage: https://github.com/Appyhigh/ad-sdk-flutter.git
 repository: https://github.com/Appyhigh/ad-sdk-flutter.git
 
@@ -9,15 +9,16 @@ environment:
 
 
 dependencies:
-  applovin_max: ^2.5.0
-  dart_jsonwebtoken: ^2.7.1
+  applovin_max: ^3.2.0
+  dart_jsonwebtoken: ^2.11.0
   flutter:
     sdk: flutter
-  google_mobile_ads: ^2.0.1
-  http: ^0.13.6
-  plugin_platform_interface: ^2.0.2
+  gdpr_dialog: ^2.1.1
+  google_mobile_ads: ^3.0.0
+  http: ^1.1.0
+  plugin_platform_interface: ^2.1.6
   shared_preferences: ^2.1.1
-  shimmer: ^2.0.0
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:

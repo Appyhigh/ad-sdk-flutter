@@ -15,6 +15,7 @@ import 'package:adsdk/src/internal/services/local_storage_service.dart';
 import 'package:adsdk/src/internal/utils/adsdk_logger.dart';
 import 'package:applovin_max/applovin_max.dart';
 import 'package:flutter/services.dart';
+import 'package:gdpr_dialog/gdpr_dialog.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 abstract class AdSdk {
@@ -146,4 +147,13 @@ abstract class AdSdk {
     AdSdkLogger.info("Removing AppOpenLifecycleReactor");
     appLifecycleReactor?.removeAppStateListener();
   }
+
+  static Future<bool> getConsentForEU({
+    bool isTestMode = false,
+    String testIdentifier = '',
+  }) =>
+      GdprDialog.instance.showDialog(
+        isForTest: isTestMode,
+        testDeviceId: testIdentifier,
+      );
 }

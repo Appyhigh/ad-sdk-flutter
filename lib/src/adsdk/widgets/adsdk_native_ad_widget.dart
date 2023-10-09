@@ -2,11 +2,14 @@ import 'dart:async';
 
 import 'package:adsdk/adsdk.dart';
 import 'package:adsdk/src/adsdk_state.dart';
+import 'package:adsdk/src/applovin/applovin_native_ad.dart';
+import 'package:adsdk/src/internal/enums/ad_provider.dart';
 import 'package:adsdk/src/internal/enums/ad_size.dart';
 import 'package:adsdk/src/internal/models/api_response.dart';
 import 'package:adsdk/src/internal/utils/adsdk_logger.dart';
+import 'package:applovin_max/applovin_max.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart' as google_ads;
 import 'package:shimmer/shimmer.dart';
 
 class AdSdkNativeAdWidget extends StatefulWidget {
@@ -29,8 +32,10 @@ class _AdSdkNativeAdWidgetState extends State<AdSdkNativeAdWidget> {
   AdSdkAdConfig? config;
   bool adLoaded = false;
 
-  NativeAd? ad;
-  NativeAd? newAd;
+  AdProvider? adProvider;
+
+  google_ads.NativeAd? ad;
+  google_ads.NativeAd? newAd;
   Timer? _timer;
 
   @override
@@ -43,35 +48,44 @@ class _AdSdkNativeAdWidgetState extends State<AdSdkNativeAdWidget> {
         return;
       }
       setState(() => config = ad);
+      if (config?.primaryAdprovider == AdProvider.applovin) {
+        adProvider = AdProvider.applovin;
+        setState(() => adLoaded = true);
+        return;
+      }
       if (widget.adSdkAd != null) {
         setState(() {
           this.ad = widget.adSdkAd!.ad;
           adLoaded = true;
         });
         startAutoRefresh();
-      } else {
-        if (config == null) {
-          AdSdk.loadAd(
-            adName: config!.adName,
-            isDarkMode: widget.isDarkMode,
-            onAdFailedToLoad: (errors) {
-              AdSdkLogger.error(
-                "Failed to load ad - '${config!.adName}' with errors - $errors",
-              );
-              setState(() => adLoaded = false);
-            },
-            onAdLoaded: (ad) {
-              AdSdkLogger.info("Here: ${ad.toString()}");
-              setState(() => adLoaded = false);
-              setState(() {
-                this.ad = ad.ad;
-                adLoaded = true;
-              });
-              loadAd();
-              startAutoRefresh();
-            },
-          );
-        }
+      } else if (config != null) {
+        AdSdk.loadAd(
+          adName: config!.adName,
+          isDarkMode: widget.isDarkMode,
+          onAdFailedToLoad: (errors) {
+            AdSdkLogger.info("Here");
+            AdSdkLogger.error(
+              "Failed to load ad - '${config!.adName}' with errors - $errors",
+            );
+            setState(() => adLoaded = false);
+            if (config?.secondaryAdprovider == AdProvider.applovin) {
+              adProvider = AdProvider.applovin;
+              setState(() => adLoaded = true);
+              return;
+            }
+          },
+          onAdLoaded: (ad) {
+            AdSdkLogger.info("Here: ${ad.toString()}");
+            setState(() => adLoaded = false);
+            setState(() {
+              this.ad = ad.ad;
+              adLoaded = true;
+            });
+            loadAd();
+            startAutoRefresh();
+          },
+        );
       }
     });
   }
@@ -107,6 +121,11 @@ class _AdSdkNativeAdWidgetState extends State<AdSdkNativeAdWidget> {
         AdSdkLogger.error(
           "Failed to load ad - '${config!.adName}' with errors - $errors",
         );
+        if (config?.secondaryAdprovider == AdProvider.applovin) {
+          adProvider = AdProvider.applovin;
+          setState(() => adLoaded = true);
+          return;
+        }
       },
       onAdLoaded: (ad) {
         AdSdkLogger.info("New Ad Loaded: ${ad.toString()}");
@@ -126,7 +145,9 @@ class _AdSdkNativeAdWidgetState extends State<AdSdkNativeAdWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (config == null || ad == null) return const SizedBox();
+    if (config == null || (ad == null && adProvider != AdProvider.applovin)) {
+      return const SizedBox();
+    }
     if (!config!.isActive) return const SizedBox();
     if (!adLoaded) {
       return Shimmer.fromColors(
@@ -140,18 +161,56 @@ class _AdSdkNativeAdWidgetState extends State<AdSdkNativeAdWidget> {
         ),
       );
     }
-    return Container(
-      height: config!.size.nativeAdHeight,
-      decoration: BoxDecoration(
-        color: Color(
-          int.parse(
-            widget.isDarkMode
-                ? config!.bgColorDark.replaceFirst("#", "0xFF")
-                : config!.bgColor.replaceFirst("#", "0xFF"),
-          ),
-        ),
-      ),
-      child: AdWidget(ad: ad!),
-    );
+    return adProvider == AdProvider.applovin
+        ? ApplovinNativeAd(
+            listener: NativeAdListener(
+              onAdClickedCallback: (ad) {
+                AdSdkLogger.info("onAdClickedCallback: ${ad.toString()}");
+              },
+              onAdLoadFailedCallback: (adUnitId, error) {
+                AdSdkLogger.error(
+                  "onAdLoadFailedCallback - '$adUnitId' with error - $error",
+                );
+                if (config?.secondaryAdprovider == AdProvider.admob) {
+                  loadAd();
+                }
+              },
+              onAdLoadedCallback: (ad) {
+                AdSdkLogger.info("onAdLoadedCallback: ${ad.toString()}");
+              },
+            ),
+            adSize: config!.size,
+            adUnitId: config?.primaryAdprovider == AdProvider.applovin
+                ? config!.primaryIds.first
+                : config!.secondaryIds.first,
+            backgroundColor: int.parse(
+              widget.isDarkMode
+                  ? config!.bgColorDark.replaceFirst("#", "0xFF")
+                  : config!.bgColor.replaceFirst("#", "0xFF"),
+            ),
+            textColor: int.parse(
+              widget.isDarkMode
+                  ? config!.textColorDark.replaceFirst("#", "0xFF")
+                  : config!.textColor.replaceFirst("#", "0xFF"),
+            ),
+            ctaColor: int.parse(
+              widget.isDarkMode
+                  ? config!.colorHexDark.replaceFirst("#", "0xFF")
+                  : config!.colorHex.replaceFirst("#", "0xFF"),
+            ),
+          )
+        : Container(
+            height: config!.size.nativeAdHeight,
+            decoration: BoxDecoration(
+              color: Color(
+                int.parse(
+                  widget.isDarkMode
+                      ? config!.bgColorDark.replaceFirst("#", "0xFF")
+                      : config!.bgColor.replaceFirst("#", "0xFF"),
+                ),
+              ),
+            ),
+            child: google_ads.AdWidget(ad: ad!),
+          );
   }
 }
