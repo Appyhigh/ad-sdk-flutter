@@ -47,14 +47,14 @@ class _AdSdkNativeAdWidgetState extends State<AdSdkNativeAdWidget> {
         AdSdkLogger.error("Please provided correct adName.");
         return;
       }
-      setState(() => config = ad);
+      _updateState(() => config = ad);
       if (config?.primaryAdprovider == AdProvider.applovin) {
         adProvider = AdProvider.applovin;
-        setState(() => adLoaded = true);
+        _updateState(() => adLoaded = true);
         return;
       }
       if (widget.adSdkAd != null) {
-        setState(() {
+        _updateState(() {
           this.ad = widget.adSdkAd!.ad;
           adLoaded = true;
         });
@@ -68,17 +68,17 @@ class _AdSdkNativeAdWidgetState extends State<AdSdkNativeAdWidget> {
             AdSdkLogger.error(
               "Failed to load ad - '${config!.adName}' with errors - $errors",
             );
-            setState(() => adLoaded = false);
+            _updateState(() => adLoaded = false);
             if (config?.secondaryAdprovider == AdProvider.applovin) {
               adProvider = AdProvider.applovin;
-              setState(() => adLoaded = true);
+              _updateState(() => adLoaded = true);
               return;
             }
           },
           onAdLoaded: (ad) {
             AdSdkLogger.info("Here: ${ad.toString()}");
-            setState(() => adLoaded = false);
-            setState(() {
+            _updateState(() => adLoaded = false);
+            _updateState(() {
               this.ad = ad.ad;
               adLoaded = true;
             });
@@ -90,20 +90,25 @@ class _AdSdkNativeAdWidgetState extends State<AdSdkNativeAdWidget> {
     });
   }
 
+  void _updateState(Function callback) async {
+    await callback();
+    if (mounted) setState(() {});
+  }
+
   void startAutoRefresh() {
     if (config == null) return;
     AdSdkLogger.info("Starting auto refresh for ad: ${config!.adName}");
     loadAd();
     _timer = Timer.periodic(
       Duration(milliseconds: config!.refreshRateMs),
-      (_) {
+          (_) {
         if (newAd != null) {
-          setState(() => adLoaded = false);
+          _updateState(() => adLoaded = false);
           Future.delayed(
             const Duration(seconds: 1),
-            () {
-              setState(() => ad = newAd!);
-              setState(() => adLoaded = true);
+                () {
+              _updateState(() => ad = newAd!);
+              _updateState(() => adLoaded = true);
             },
           );
         }
@@ -123,13 +128,13 @@ class _AdSdkNativeAdWidgetState extends State<AdSdkNativeAdWidget> {
         );
         if (config?.secondaryAdprovider == AdProvider.applovin) {
           adProvider = AdProvider.applovin;
-          setState(() => adLoaded = true);
+          _updateState(() => adLoaded = true);
           return;
         }
       },
       onAdLoaded: (ad) {
         AdSdkLogger.info("New Ad Loaded: ${ad.toString()}");
-        setState(() => newAd = ad.ad);
+        _updateState(() => newAd = ad.ad);
       },
     );
   }
@@ -163,54 +168,54 @@ class _AdSdkNativeAdWidgetState extends State<AdSdkNativeAdWidget> {
     }
     return adProvider == AdProvider.applovin
         ? ApplovinNativeAd(
-            listener: NativeAdListener(
-              onAdClickedCallback: (ad) {
-                AdSdkLogger.info("onAdClickedCallback: ${ad.toString()}");
-              },
-              onAdLoadFailedCallback: (adUnitId, error) {
-                AdSdkLogger.error(
-                  "onAdLoadFailedCallback - '$adUnitId' with error - $error",
-                );
-                if (config?.secondaryAdprovider == AdProvider.admob) {
-                  loadAd();
-                }
-              },
-              onAdLoadedCallback: (ad) {
-                AdSdkLogger.info("onAdLoadedCallback: ${ad.toString()}");
-              },
-            ),
-            adSize: config!.size,
-            adUnitId: config?.primaryAdprovider == AdProvider.applovin
-                ? config!.primaryIds.first
-                : config!.secondaryIds.first,
-            backgroundColor: int.parse(
-              widget.isDarkMode
-                  ? config!.bgColorDark.replaceFirst("#", "0xFF")
-                  : config!.bgColor.replaceFirst("#", "0xFF"),
-            ),
-            textColor: int.parse(
-              widget.isDarkMode
-                  ? config!.textColorDark.replaceFirst("#", "0xFF")
-                  : config!.textColor.replaceFirst("#", "0xFF"),
-            ),
-            ctaColor: int.parse(
-              widget.isDarkMode
-                  ? config!.colorHexDark.replaceFirst("#", "0xFF")
-                  : config!.colorHex.replaceFirst("#", "0xFF"),
-            ),
-          )
-        : Container(
-            height: config!.size.nativeAdHeight,
-            decoration: BoxDecoration(
-              color: Color(
-                int.parse(
-                  widget.isDarkMode
-                      ? config!.bgColorDark.replaceFirst("#", "0xFF")
-                      : config!.bgColor.replaceFirst("#", "0xFF"),
-                ),
-              ),
-            ),
-            child: google_ads.AdWidget(ad: ad!),
+      listener: NativeAdListener(
+        onAdClickedCallback: (ad) {
+          AdSdkLogger.info("onAdClickedCallback: ${ad.toString()}");
+        },
+        onAdLoadFailedCallback: (adUnitId, error) {
+          AdSdkLogger.error(
+            "onAdLoadFailedCallback - '$adUnitId' with error - $error",
           );
+          if (config?.secondaryAdprovider == AdProvider.admob) {
+            loadAd();
+          }
+        },
+        onAdLoadedCallback: (ad) {
+          AdSdkLogger.info("onAdLoadedCallback: ${ad.toString()}");
+        },
+      ),
+      adSize: config!.size,
+      adUnitId: config?.primaryAdprovider == AdProvider.applovin
+          ? config!.primaryIds.first
+          : config!.secondaryIds.first,
+      backgroundColor: int.parse(
+        widget.isDarkMode
+            ? config!.bgColorDark.replaceFirst("#", "0xFF")
+            : config!.bgColor.replaceFirst("#", "0xFF"),
+      ),
+      textColor: int.parse(
+        widget.isDarkMode
+            ? config!.textColorDark.replaceFirst("#", "0xFF")
+            : config!.textColor.replaceFirst("#", "0xFF"),
+      ),
+      ctaColor: int.parse(
+        widget.isDarkMode
+            ? config!.colorHexDark.replaceFirst("#", "0xFF")
+            : config!.colorHex.replaceFirst("#", "0xFF"),
+      ),
+    )
+        : Container(
+      height: config!.size.nativeAdHeight,
+      decoration: BoxDecoration(
+        color: Color(
+          int.parse(
+            widget.isDarkMode
+                ? config!.bgColorDark.replaceFirst("#", "0xFF")
+                : config!.bgColor.replaceFirst("#", "0xFF"),
+          ),
+        ),
+      ),
+      child: google_ads.AdWidget(ad: ad!),
+    );
   }
 }

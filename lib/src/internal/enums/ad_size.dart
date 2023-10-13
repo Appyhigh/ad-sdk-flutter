@@ -54,9 +54,11 @@ extension AdSdkAdSizeExtension on AdSdkAdSize {
   String get factoryId {
     switch (this) {
       case AdSdkAdSize.mediumNative:
-        return "nativeAdView";
-      default:
+        return "mediumNativeAdView";
+      case AdSdkAdSize.smallNative:
         return "smallNativeAdView";
+      default:
+        return "nativeAdView";
     }
   }
 
@@ -64,6 +66,8 @@ extension AdSdkAdSizeExtension on AdSdkAdSize {
     switch (this) {
       case AdSdkAdSize.mediumNative:
         return Platform.isAndroid ? 270 : 300;
+      case AdSdkAdSize.smallNative:
+        return 72;
       default:
         return Platform.isAndroid ? 110 : 80;
     }

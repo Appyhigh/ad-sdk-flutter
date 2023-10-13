@@ -9,15 +9,18 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.RatingBar
 import android.widget.TextView
+import com.google.android.gms.ads.nativead.MediaView
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
-import io.flutter.plugins.googlemobileads.GoogleMobileAdsPlugin
+import io.flutter.plugins.googlemobileads.GoogleMobileAdsPlugin.NativeAdFactory
 
-
-internal class CustomNativeAd(private val context: Context) :
-    GoogleMobileAdsPlugin.NativeAdFactory {
+internal class CustomNativeAdMedium(private val context: Context) : NativeAdFactory {
     override fun createNativeAd(nativeAd: NativeAd, customOptions: Map<String, Any>?): NativeAdView {
-        val adView = LayoutInflater.from(context).inflate(R.layout.native_ad_layout, null) as NativeAdView
+        val adView = LayoutInflater.from(context).inflate(R.layout.medium_native_ad_layout, null) as NativeAdView
+
+         // Set the media view.
+        adView.mediaView =
+        adView.findViewById<View>(R.id.ad_media) as MediaView
 
         // Set other ad assets.
         adView.headlineView =
@@ -39,7 +42,9 @@ internal class CustomNativeAd(private val context: Context) :
 
         // The headline and mediaContent are guaranteed to be in every NativeAd.
         (adView.headlineView as TextView?)!!.text = nativeAd.headline
+        adView.mediaView!!.setMediaContent(nativeAd.mediaContent!!)
         (adView.headlineView as TextView?)!!.setTextColor(Color.parseColor((customOptions!!["textColor"] as String)))
+
 
         if (nativeAd.callToAction == null) {
             adView.callToActionView!!.visibility = View.INVISIBLE
