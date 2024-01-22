@@ -39,6 +39,7 @@ class ApplovinRewardedListenerHelper implements RewardedAdListener {
         for (var element in _listeners) {
           if (element.adId == ad.adUnitId) {
             element.onAdDisplayFailedCallback(ad, error);
+            removeListener(element);
           }
         }
       };
@@ -67,6 +68,7 @@ class ApplovinRewardedListenerHelper implements RewardedAdListener {
         for (var element in _listeners) {
           if (element.adId == adUnitId) {
             element.onAdLoadFailedCallback(adUnitId, error);
+            removeListener(element);
           }
         }
       };
@@ -76,6 +78,7 @@ class ApplovinRewardedListenerHelper implements RewardedAdListener {
         for (var element in _listeners) {
           if (element.adId == ad.adUnitId) {
             element.onAdLoadedCallback(ad);
+            removeListener(element);
           }
         }
       };
@@ -86,6 +89,7 @@ class ApplovinRewardedListenerHelper implements RewardedAdListener {
         for (var element in _listeners) {
           if (element.adId == ad.adUnitId) {
             element.onAdReceivedRewardCallback(ad, reward);
+            removeListener(element);
           }
         }
       };

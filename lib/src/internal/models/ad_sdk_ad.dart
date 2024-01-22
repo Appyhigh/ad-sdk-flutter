@@ -216,6 +216,7 @@ class AdSdkAd {
             if (onUserEarnedReward != null) {
               onUserEarnedReward(reward.amount, reward.label);
             }
+            AdSdkState.showingAd = false;
           },
           adId: adUnitId,
           onAdRevenuePaidCallback: (MaxAd ad) => null,
