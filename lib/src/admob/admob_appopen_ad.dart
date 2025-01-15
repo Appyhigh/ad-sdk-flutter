@@ -16,7 +16,6 @@ abstract class AdmobAppOpenAd {
           AdSdkRawAd(error: error.message),
         ),
       ),
-      orientation: AppOpenAd.orientationPortrait,
     );
     return c.future;
   }
