@@ -20,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'src/admob/gdpr_constent_form.dart';
+
 class AdSdk {
   static bool _isInitialized = false;
   static bool get isInitialized => _isInitialized;
@@ -75,9 +76,9 @@ class AdSdk {
           adSdkConfig.applovinTestDevices,
         );
       }
-      await AppLovinMAX.initialize(applovinSdkKey);
-
-      AdSdkLogger.info("Applovin initialized.");
+      AppLovinMAX.initialize(applovinSdkKey).then((value) {
+        AdSdkLogger.info("Applovin initialized.");
+      });
     }
 
     AdSdkLogger.info("AdSdk initialized.");
